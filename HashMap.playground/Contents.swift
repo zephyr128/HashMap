@@ -12,21 +12,24 @@ class Entry<K: Hashable, V> {
 }
 
 /// A simple implementation of a hashmap with dynamic sizing and collision handling
-class HashMap<K: Hashable, V:Hashable> {
+class HashMap<K: Hashable, V> {
     private var buckets: [Entry<K, V>?]
     private var count: Int
     private let loadFactor: Double = 0.75
+    // Iterator
+    private var currentIndex = 0
+    private var currentEntry: Entry<K,V>?
     
     init(capacity: Int = 16) {
         self.count = 0
-        self.buckets = [Entry<K, V>?](repeating: nil, count: max(1, capacity))
+        self.buckets = [Entry<K, V>?](repeating: nil, count: Swift.max(1, capacity))
     }
     
     func put(key: K, value: V) {
         let index = hash(key: key)
         var current = buckets[index]
         
-        if let found = processEntry(forKey: key, startingFrom: &current) {
+        if let _ = processEntry(forKey: key, startingFrom: &current) {
             current?.value = value
             return
         }
@@ -49,7 +52,7 @@ class HashMap<K: Hashable, V:Hashable> {
         var current = buckets[index]
         var previous: Entry<K, V>?
         
-        if let found = processEntry(forKey: key, startingFrom: &current, previous: &previous) {
+        if let value = processEntry(forKey: key, startingFrom: &current, previous: &previous) {
             if let current {
                 if let prev = previous {
                     prev.next = current.next
@@ -58,7 +61,7 @@ class HashMap<K: Hashable, V:Hashable> {
                 }
                 count -= 1
             }
-            return found
+            return value
         }
         
         return nil
@@ -94,8 +97,8 @@ class HashMap<K: Hashable, V:Hashable> {
     }
     
     private func resize() {
-        var oldBuckets = buckets
-        var newCapacity = buckets.count * 2
+        let oldBuckets = buckets
+        let newCapacity = buckets.count * 2
         buckets = [Entry<K, V>?](repeating: nil, count: newCapacity)
 
         for oldBucket in oldBuckets {
@@ -106,6 +109,33 @@ class HashMap<K: Hashable, V:Hashable> {
             }
         }
     }
+}
+
+
+extension HashMap: Sequence, IteratorProtocol {
+    typealias Element = (K,V)
+    
+    private func getFirstNonEmptyBucket() {
+        while currentIndex < buckets.count && buckets[currentIndex] == nil {
+            currentIndex += 1
+        }
+        if currentIndex < buckets.count {
+            currentEntry = buckets[currentIndex]
+        }
+    }
+    
+    func next() -> (K,V)? {
+        if currentEntry == nil {
+            getFirstNonEmptyBucket()
+            currentIndex += 1
+        }
+        if let entry = currentEntry {
+            currentEntry = entry.next
+            return (entry.key, entry.value)
+        }
+        return nil
+    }
+    
 }
 
 func safeAbs<T: FixedWidthInteger & SignedInteger>(_ value: T) -> T {
@@ -120,4 +150,19 @@ func generateRandomString(length: Int) -> String {
     let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     let randomString = String((0..<length).compactMap { _ in characters.randomElement() })
     return randomString
+}
+
+var hashmap = HashMap<String, Int>()
+hashmap.put(key: "test0", value: 0)
+hashmap.put(key: "test1", value: 1)
+hashmap.put(key: "test2", value: 2)
+hashmap.put(key: "test3", value: 3)
+hashmap.put(key: "test4", value: 4)
+
+for (key, value) in hashmap {
+    print("\(key): \(value)")
+}
+
+hashmap.forEach { key, value in
+    print("\(key): \(value)")
 }
