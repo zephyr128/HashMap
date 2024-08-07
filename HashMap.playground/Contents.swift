@@ -146,12 +146,6 @@ func safeAbs<T: FixedWidthInteger & SignedInteger>(_ value: T) -> T {
     }
 }
 
-func generateRandomString(length: Int) -> String {
-    let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    let randomString = String((0..<length).compactMap { _ in characters.randomElement() })
-    return randomString
-}
-
 var hashmap = HashMap<String, Int>()
 hashmap.put(key: "test0", value: 0)
 hashmap.put(key: "test1", value: 1)
