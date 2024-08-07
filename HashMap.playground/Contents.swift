@@ -204,7 +204,7 @@ extension HashMap {
 
 func safeAbs<T: FixedWidthInteger & SignedInteger>(_ value: T) -> T {
     if value == T.min {
-        return value
+        return T.max
     } else {
         return abs(value)
     }
