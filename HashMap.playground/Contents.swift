@@ -111,7 +111,6 @@ class HashMap<K: Hashable, V> {
     }
 }
 
-
 extension HashMap: Sequence, IteratorProtocol {
     typealias Element = (K,V)
     
@@ -135,7 +134,49 @@ extension HashMap: Sequence, IteratorProtocol {
         }
         return nil
     }
+}
+
+// Some additional methods
+extension HashMap {
     
+    func forEach(_ elem: (K, V) -> Void) {
+        for bucket in buckets {
+            var current = bucket
+            while let entry = current {
+                elem(entry.key, entry.value)
+                current = entry.next
+            }
+        }
+    }
+    
+    func keys() -> [K] {
+        var keys: [K] = []
+        self.forEach { key, _ in
+            keys.append(key)
+        }
+        return keys
+    }
+    
+    func values() -> [V] {
+        var values: [V] = []
+        self.forEach { _, value in
+            values.append(value)
+        }
+        return values
+    }
+    
+    func clear() {
+        self.count = 0
+        self.buckets = [Entry<K, V>?](repeating: nil, count: buckets.count)
+    }
+    
+    func size() -> Int {
+        count
+    }
+    
+    func isEmpty() -> Bool {
+        count == 0
+    }
 }
 
 func safeAbs<T: FixedWidthInteger & SignedInteger>(_ value: T) -> T {
@@ -160,3 +201,8 @@ for (key, value) in hashmap {
 hashmap.forEach { key, value in
     print("\(key): \(value)")
 }
+print(hashmap.keys())
+hashmap.remove(key: "test2")
+hashmap.remove(key: "test3")
+print(hashmap.values())
+print(hashmap.isEmpty())
