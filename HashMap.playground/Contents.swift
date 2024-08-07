@@ -224,8 +224,8 @@ for (key, value) in hashmap {
 hashmap.forEach { key, value in
     print("\(key): \(value)")
 }
-print(hashmap.keys())
+print(hashmap.keysAll())
 hashmap.remove(key: "test2")
 hashmap.remove(key: "test3")
-print(hashmap.values())
+print(hashmap.valuesAll())
 print(hashmap.isEmpty())
