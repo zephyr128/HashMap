@@ -22,6 +22,17 @@ class HashMap<K: Hashable, V> {
         self.buckets = [Entry<K, V>?](repeating: nil, count: Swift.max(1, capacity))
     }
     
+    subscript(key: K) -> V? {
+        get {
+            return get(key: key)
+        }
+        set {
+            if let value = newValue {
+                put(key: key, value: value)
+            }
+        }
+    }
+    
     func put(key: K, value: V) {
         let index = hash(key: key)
         var current = buckets[index]
@@ -218,6 +229,8 @@ hashmap.put(key: "test1", value: 1)
 hashmap.put(key: "test2", value: 2)
 hashmap.put(key: "test3", value: 3)
 hashmap.put(key: "test4", value: 4)
+hashmap["test5"] = 5
+hashmap["test6"] = 6
 
 for (key, value) in hashmap {
     print("\(key): \(value)")
@@ -229,5 +242,7 @@ hashmap.forEach { key, value in
 print(hashmap.keysAll())
 hashmap.remove(key: "test2")
 hashmap.remove(key: "test3")
+print(hashmap["test5"] ?? 0)
+print(hashmap["test3"] ?? 0)
 print(hashmap.valuesAll())
 print(hashmap.isEmpty())
