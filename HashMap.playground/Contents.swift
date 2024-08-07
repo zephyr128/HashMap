@@ -160,7 +160,19 @@ extension HashMap {
         }
     }
     
-    func keys() -> [K] {
+    func keys(_ elem: (K) -> Void) {
+        self.forEach { key, _ in
+           elem(key)
+        }
+    }
+    
+    func values(_ elem: (V) -> Void) {
+        self.forEach { _, value in
+           elem(value)
+        }
+    }
+    
+    func keysAll() -> [K] {
         var keys: [K] = []
         self.forEach { key, _ in
             keys.append(key)
@@ -168,7 +180,7 @@ extension HashMap {
         return keys
     }
     
-    func values() -> [V] {
+    func valuesAll() -> [V] {
         var values: [V] = []
         self.forEach { _, value in
             values.append(value)
