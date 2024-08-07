@@ -16,9 +16,6 @@ class HashMap<K: Hashable, V> {
     private var buckets: [Entry<K, V>?]
     private var count: Int
     private let loadFactor: Double = 0.75
-    // Iterator
-    private var currentIndex = 0
-    private var currentEntry: Entry<K,V>?
     
     init(capacity: Int = 16) {
         self.count = 0
@@ -109,30 +106,44 @@ class HashMap<K: Hashable, V> {
             }
         }
     }
-}
-
-extension HashMap: Sequence, IteratorProtocol {
-    typealias Element = (K,V)
     
-    private func getFirstNonEmptyBucket() {
-        while currentIndex < buckets.count && buckets[currentIndex] == nil {
-            currentIndex += 1
+    struct Iterator: IteratorProtocol {
+        typealias Element = (K,V)
+        private var currentIndex = 0
+        private var currentEntry: Entry<K,V>?
+        private let buckets: [Entry<K, V>?]
+        
+        init(hashMap: HashMap<K,V>) {
+            self.buckets = hashMap.buckets
+            getFirstNonEmptyBucket()
         }
-        if currentIndex < buckets.count {
-            currentEntry = buckets[currentIndex]
+        
+        mutating private func getFirstNonEmptyBucket() {
+            while currentIndex < buckets.count && buckets[currentIndex] == nil {
+                currentIndex += 1
+            }
+            if currentIndex < buckets.count {
+                currentEntry = buckets[currentIndex]
+            }
+        }
+        
+        mutating func next() -> (K,V)? {
+            if currentEntry == nil {
+                getFirstNonEmptyBucket()
+                currentIndex += 1
+            }
+            if let entry = currentEntry {
+                currentEntry = entry.next
+                return (entry.key, entry.value)
+            }
+            return nil
         }
     }
-    
-    func next() -> (K,V)? {
-        if currentEntry == nil {
-            getFirstNonEmptyBucket()
-            currentIndex += 1
-        }
-        if let entry = currentEntry {
-            currentEntry = entry.next
-            return (entry.key, entry.value)
-        }
-        return nil
+}
+
+extension HashMap: Sequence {
+    func makeIterator() -> Iterator {
+        return Iterator(hashMap: self)
     }
 }
 
