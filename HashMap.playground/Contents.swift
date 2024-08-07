@@ -67,7 +67,9 @@ class HashMap<K: Hashable, V> {
     // MARK: Private methods
     
     private func hash(key: K) -> Int {
-        return safeAbs(key.hashValue) % buckets.count
+        var hasher = Hasher()
+        key.hash(into: &hasher)
+        return safeAbs(hasher.finalize()) % buckets.count
     }
     
     private func addEntry(key: K, value: V, at index: Int) {
